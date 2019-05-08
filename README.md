@@ -7,7 +7,7 @@ Packages are separated into individual platform support packages. These packages
 
 ```
 <root>
-	com.unity.oculus.standalone (Contains Standalone Oculus files)
+	com.unity.oculus.standalone (Contains Desktop Oculus files)
 		plugins
 		package.json
 		README
