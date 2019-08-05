@@ -44,7 +44,7 @@ namespace UnityEditor.XR.Oculus
         }
 
         void UpdateOrCreateNameValueElementsInTag(XmlDocument doc, string parentPath, string tag,
-            string firstName, string firstValue, string secondName, string secondValue)
+            string firstName, string firstValue, string secondName, string secondValue, string thirdName=null, string thirdValue=null)
         {
             var xmlNodeList = doc.SelectNodes(parentPath + "/" + tag);
 
@@ -58,15 +58,27 @@ namespace UnityEditor.XR.Oculus
                     {
                         var valueSibling = attrib.NextSibling;
                         valueSibling.Value = secondValue;
+
+                        if (thirdValue != null)
+                        {
+                            valueSibling = attrib.NextSibling;
+                            valueSibling.Value = thirdValue;
+                        }
+
                         return;
                     }
                 }
             }
             
-            // Didn't find any attributes that matched, create both
+            // Didn't find any attributes that matched, create both (or all three)
             XmlElement childElement = doc.CreateElement(tag);
             childElement.SetAttribute(firstName, k_AndroidURI, firstValue);
             childElement.SetAttribute(secondName, k_AndroidURI, secondValue);
+
+            if (thirdValue != null)
+            {
+                childElement.SetAttribute(thirdName, k_AndroidURI, thirdValue);
+            }
 
             var xmlParentNode = doc.SelectSingleNode(parentPath);
 
@@ -82,7 +94,7 @@ namespace UnityEditor.XR.Oculus
             var manifestDoc = new XmlDocument();
             manifestDoc.Load(manifestPath);
 
-            var sdkVersion = (int)PlayerSettings.Android.minSdkVersion;
+            var minSdkVersion = (int)PlayerSettings.Android.minSdkVersion;
 
             UpdateOrCreateAttributeInTag(manifestDoc, "/", "manifest", "installLocation", "auto");
 
@@ -94,15 +106,30 @@ namespace UnityEditor.XR.Oculus
             UpdateOrCreateAttributeInTag(manifestDoc, nodePath, "activity", "theme", "@android:style/Theme.Black.NoTitleBar.Fullscreen");
 
             var configChangesValue = "keyboard|keyboardHidden|navigation|orientation|screenLayout|screenSize|uiMode";
-            configChangesValue = ((sdkVersion >= 24) ? configChangesValue + "|density" : configChangesValue);
+            configChangesValue = ((minSdkVersion >= 24) ? configChangesValue + "|density" : configChangesValue);
             UpdateOrCreateAttributeInTag(manifestDoc, nodePath, "activity", "configChanges", configChangesValue);
 
-            if (sdkVersion >= 24)
+            if (minSdkVersion >= 24)
             {
                 UpdateOrCreateAttributeInTag(manifestDoc, nodePath, "activity", "resizeableActivity", "false");
             }
 
             UpdateOrCreateAttributeInTag(manifestDoc, nodePath, "activity", "launchMode", "singleTask");
+
+            // check to see if the v2Signing property exists
+            var type = typeof(PlayerSettings.VROculus);
+            var propInfo = type.GetProperty("v2Signing");
+
+            if (propInfo != null)
+            {
+                bool v2Signing = (bool)propInfo.GetValue(null);
+
+                if (v2Signing == true)
+                {
+                    nodePath = "/manifest";
+                    UpdateOrCreateNameValueElementsInTag(manifestDoc, nodePath, "uses-feature", "name", "android.hardware.vr.headtracking", "required", "true", "version", "1");
+                }
+            }
 
 	        // Uncomment the following block to add additional manifest entries required for store release submissions
             
