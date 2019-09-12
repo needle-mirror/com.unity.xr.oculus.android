@@ -11,7 +11,7 @@ namespace UnityEditor.XR.Oculus
 {
     internal class OculusVulkanWarning : IPreprocessBuildWithReport
     {
-        public int callbackOrder { get { return 0; } }
+        public int callbackOrder { get { return 10000; } }
 
         public void OnPreprocessBuild(BuildReport report)
         {
@@ -122,7 +122,7 @@ namespace UnityEditor.XR.Oculus
 
             if (propInfo != null)
             {
-                bool v2Signing = (bool)propInfo.GetValue(null);
+                bool v2Signing = (bool)propInfo.GetValue(null, null);
 
                 if (v2Signing == true)
                 {
