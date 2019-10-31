@@ -4,6 +4,10 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.38.4] - 2019-11-01
+
+Fixed an issue with colliding Android manifests breaking .apk generation.
+
 ## [1.38.3] - 2019-09-13
 
 Bumped callbackOrder for the Vulkan preprocess warning to 10000 in case other assets modify the graphics settings.

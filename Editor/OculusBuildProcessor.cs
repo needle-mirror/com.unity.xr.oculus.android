@@ -44,7 +44,7 @@ namespace UnityEditor.XR.Oculus
         }
 
         void UpdateOrCreateNameValueElementsInTag(XmlDocument doc, string parentPath, string tag,
-            string firstName, string firstValue, string secondName, string secondValue, string thirdName=null, string thirdValue=null)
+            string firstName, string firstValue, string secondName, string secondValue)
         {
             var xmlNodeList = doc.SelectNodes(parentPath + "/" + tag);
 
@@ -59,18 +59,35 @@ namespace UnityEditor.XR.Oculus
                         var valueSibling = attrib.NextSibling;
                         valueSibling.Value = secondValue;
 
-                        if (thirdValue != null)
-                        {
-                            valueSibling = attrib.NextSibling;
-                            valueSibling.Value = thirdValue;
-                        }
-
                         return;
                     }
                 }
             }
             
             // Didn't find any attributes that matched, create both (or all three)
+            XmlElement childElement = doc.CreateElement(tag);
+            childElement.SetAttribute(firstName, k_AndroidURI, firstValue);
+            childElement.SetAttribute(secondName, k_AndroidURI, secondValue);
+
+            var xmlParentNode = doc.SelectSingleNode(parentPath);
+
+            if (xmlParentNode != null)
+            {
+                xmlParentNode.AppendChild(childElement);
+            }
+        }
+
+        // same as above, but don't attempt to preserve anything.
+        void CreateNameValueElementsInTag(XmlDocument doc, string parentPath, string tag,
+            string firstName, string firstValue, string secondName, string secondValue, string thirdName=null, string thirdValue=null)
+        {
+            var xmlNodeList = doc.SelectNodes(parentPath + "/" + tag);
+
+            foreach (XmlNode node in xmlNodeList)
+            {
+                node.ParentNode.RemoveChild(node);
+            }
+            
             XmlElement childElement = doc.CreateElement(tag);
             childElement.SetAttribute(firstName, k_AndroidURI, firstValue);
             childElement.SetAttribute(secondName, k_AndroidURI, secondValue);
@@ -127,7 +144,7 @@ namespace UnityEditor.XR.Oculus
                 if (v2Signing == true)
                 {
                     nodePath = "/manifest";
-                    UpdateOrCreateNameValueElementsInTag(manifestDoc, nodePath, "uses-feature", "name", "android.hardware.vr.headtracking", "required", "true", "version", "1");
+                    CreateNameValueElementsInTag(manifestDoc, nodePath, "uses-feature", "name", "android.hardware.vr.headtracking", "required", "true", "version", "1");
                 }
             }
 
