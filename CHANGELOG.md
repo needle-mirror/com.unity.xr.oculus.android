@@ -4,6 +4,10 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.38.6] - 2019-12-17
+
+Fixed an issue with manifest generation when combined with the 1.44 Oculus Integration assets.
+
 ## [1.38.5] - 2019-12-04
 
 Fixed an issue introduced in 1.38.4 where some entries in a custom AndroidManifest.xml were getting removed when V2 signing was enabled.
